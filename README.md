@@ -99,14 +99,14 @@ O banco de dados foi modelado para cobrir todo o ciclo de uso do sistema, compos
 
 ## 📢 Como Executar
 
-Para replicar o banco de dados em sua máquina local, siga a ordem de execução abaixo para evitar erros de dependência (chaves estrangeiras):
+Para replicar o banco de dados em sua máquina local, é fundamental seguir a ordem de execução abaixo para evitar erros de dependência (chaves estrangeiras):
 
-1.  Importe e execute o arquivo na pasta **/DDL** (Criação do Banco e Tabelas).
-2.  Execute o script da pasta **/DML** (Popula o banco com dados de teste).
-3.  Rode o arquivo da pasta **/VIEWS**.
-4.  Execute os scripts das pastas **/Procedures-Funcoes** e **/Triggers**.
-5.  Utilize os arquivos de testes anexos para validar o funcionamento das automações.
-
+1.  **`create table.sql`**: Execute este arquivo primeiro. Ele contém o **DDL** responsável por criar o Banco de Dados (Schema) e toda a estrutura das tabelas.
+2.  **`insert.sql`**: Em seguida, execute este script **DML** para popular o banco com os dados iniciais de teste.
+3.  **`view.sql`**: Cria as visualizações para relatórios e consultas frequentes.
+4.  **`procedure e funcoes.sql`**: Implementa as lógicas de negócio armazenadas (Stored Procedures e Functions).
+5.  **`trigger.sql`**: Ativa os gatilhos de automação do banco.
+6.  **`select.sql`**: Por fim, utilize este arquivo para realizar consultas e validar se os dados e as lógicas foram implementados corretamente.
 ---
 
 ## 📝 Autora
