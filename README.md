@@ -106,7 +106,7 @@ Para garantir o funcionamento correto do banco de dados, siga rigorosamente a or
 3.  **`select.sql`**: Realiza consultas para validar se os dados foram inseridos corretamente.
 4.  **`view.sql`**: Cria as visualizações (views) para relatórios.
 5.  **`procedure e funcoes.sql`**: Implementa as funções e procedimentos armazenados.
-6.  **`trigger.sql`**: Ativa os gatilhos (triggers) de automação.
+6.  **`trigger.sql`**: Ativa os gatilhos (triggers) de automação. Execute os comandos de teste em seguida.
 
 ---
 
