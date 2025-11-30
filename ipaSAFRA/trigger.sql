@@ -174,3 +174,137 @@ SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Insumo deve estar vinculado a um est
 END IF;
 END $$
 DELIMITER ;
+
+
+/* ==========================================================
+                         TESTES
+========================================================== */
+
+
+/* ==========================================================
+TESTE 1 — tg_update_rastreamento_timestamp
+(Atualiza data_atualizacao sempre que atualizar rastreamento)
+========================================================== */
+UPDATE rastreamento
+SET status_processamento = 'em análise'
+WHERE id_rastreamento = 1;
+
+SELECT * FROM rastreamento WHERE id_rastreamento = 1;
+
+
+
+/* ==========================================================
+TESTE 2 — tg_estoque_zero
+(Se quantidade = 0 → status = 'esgotado')
+========================================================== */
+UPDATE estoque
+SET quantidade_estoque = 0
+WHERE id_estoque = 1;
+
+SELECT id_estoque, quantidade_estoque, status_estoque FROM estoque WHERE id_estoque = 1;
+
+
+
+/* ==========================================================
+TESTE 3 — tg_estoque_critico
+(Se quantidade entre 1 e 9 → status = 'critico')
+========================================================== */
+UPDATE estoque
+SET quantidade_estoque = 5
+WHERE id_estoque = 1;
+
+SELECT id_estoque, quantidade_estoque, status_estoque FROM estoque WHERE id_estoque = 1;
+
+
+
+/* ==========================================================
+TESTE 4 — tg_block_duplicate_cpf
+(Insere agricultor com CPF já existente — deve gerar erro 'CPF já cadastrado!')
+========================================================== */
+/* use um CPF que já exista na tabela (ex.: '12345678901' do agricultor id=1) */
+INSERT INTO agricultor (nome_completo, cpf, tipo_propriedade, caf, cep, complemento)
+VALUES ('Teste CPF Duplicado', '12345678901', 'Familiar', 'CAF-TESTE', '50000000', 'Teste duplicado');
+
+
+
+/* ==========================================================
+TESTE 5 — tg_insumo_movimento
+(Ao inserir insumo → reduz quantidade no estoque correspondente)
+========================================================== */
+INSERT INTO insumo (tipo_insumo, cultura, variedade, quantidade_solicitada, fk_estoque_id_estoque)
+VALUES ('Semente', 'Milho', 'Híbrido-Teste', '3', 1);
+
+SELECT id_estoque, quantidade_estoque, status_estoque FROM estoque WHERE id_estoque = 1;
+
+
+
+/* ==========================================================
+TESTE 6 — tg_log_solicitacao
+(Ao criar solicitacao → cria registro automático no suporte)
+========================================================== */
+INSERT INTO solicitacao (data_solicitacao, finalidade, area_plantio, data_plantio_ideal, fk_agricultor_id_agricultor, fk_insumo_id_insumo)
+VALUES (CURDATE(), 'Teste criação automática de suporte', 2.0, DATE_ADD(CURDATE(), INTERVAL 7 DAY), 1, 1);
+
+SELECT * FROM suporte ORDER BY id_suporte DESC LIMIT 1;
+
+
+
+/* ==========================================================
+TESTE 7 — tg_block_area_update
+(Tentar alterar area_plantio — deve gerar erro 'A área de plantio não pode ser alterada!')
+========================================================== */
+UPDATE solicitacao
+SET area_plantio = 999.99
+WHERE id_solicitacao = 1;
+
+
+
+/* ==========================================================
+TESTE 8 — tg_block_cpf_update
+(Tentar alterar CPF de um agricultor — deve gerar erro 'CPF não pode ser alterado!')
+========================================================== */
+UPDATE agricultor
+SET cpf = '99988877766'
+WHERE id_agricultor = 1;
+
+
+
+/* ==========================================================
+TESTE 9 — tg_default_rastreamento
+(Ao inserir logistica → cria rastreamento automaticamente)
+========================================================== */
+INSERT INTO logistica (cidade, forma_entrega, rua, cep, complemento, destinatario, telefone, previsao_despacho, fk_solicitacao_id_solicitacao)
+VALUES ('Recife', 'entrega', 'Rua Trigger Teste', '50000000', 'Sem complemento', 'Dest Teste', '81999990000', NULL, 1);
+
+SELECT * FROM rastreamento ORDER BY id_rastreamento DESC LIMIT 1;
+
+
+
+/* ==========================================================
+TESTE 10 — tg_format_nome_agricultor
+(Ao inserir agricultor → primeira letra deve ficar maiúscula)
+========================================================== */
+INSERT INTO agricultor (nome_completo, cpf, tipo_propriedade, caf, cep, complemento)
+VALUES ('maria minuscula teste', '32132132100', 'Familiar', 'CAF-T10', '50000000', 'Teste nome');
+
+SELECT nome_completo FROM agricultor WHERE cpf = '32132132100';
+
+
+
+/* ==========================================================
+TESTE 11 — tg_auto_previsao_logistica
+(Se previsao_despacho NULL → preencher automaticamente com +3 dias)
+========================================================== */
+INSERT INTO logistica (cidade, forma_entrega, rua, cep, complemento, destinatario, telefone, previsao_despacho, fk_solicitacao_id_solicitacao)
+VALUES ('Olinda', 'retirada', 'Rua Previsao', '53000000', '---', 'Dest Previsao', '81990000000', NULL, 1);
+
+SELECT previsao_despacho FROM logistica ORDER BY id_logistica DESC LIMIT 1;
+
+
+
+/* ==========================================================
+TESTE 12 — tg_block_insumo_sem_estoque
+(Insere insumo sem fk_estoque_id_estoque — deve gerar erro)
+========================================================== */
+INSERT INTO insumo (tipo_insumo, cultura, variedade, quantidade_solicitada, fk_estoque_id_estoque)
+VALUES ('Adubo', 'NPK-Teste', '04-14-08', '10', NULL);
