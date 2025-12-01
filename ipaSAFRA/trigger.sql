@@ -186,7 +186,7 @@ TESTE 1 — tg_update_rastreamento_timestamp
 (Atualiza data_atualizacao sempre que atualizar rastreamento)
 ========================================================== */
 UPDATE rastreamento
-SET status_processamento = 'em análise'
+SET status_processamento = 'em processamento'
 WHERE id_rastreamento = 1;
 
 SELECT * FROM rastreamento WHERE id_rastreamento = 1;
